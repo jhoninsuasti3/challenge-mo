@@ -33,7 +33,6 @@ class PaymentSerializer(serializers.ModelSerializer):
         # Verificar si el pago no excede la deuda total del cliente
         total_debt = customer.loans.filter(status__in=[1, 2]).aggregate(
             Sum('outstanding'))['outstanding__sum'] or 0
-        print(f"------- Total Debt: {total_debt}")
         if data['total_amount'] > total_debt:
             raise serializers.ValidationError(
                 {'total_amount': 'Payment amount exceeds customer\'s total debt'})

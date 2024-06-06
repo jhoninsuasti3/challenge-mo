@@ -30,12 +30,8 @@ class Payment(models.Model):
 
     def update_loans(self):
         remaining_amount = self.total_amount
-        print("////////////////")
-        print(remaining_amount)
         loans = Loan.objects.filter(
             customer=self.customer, status=2).order_by('created_at')
-        from pprint import pprint
-        pprint(loans)
         for loan in loans:
             if remaining_amount <= 0:
                 break
@@ -55,8 +51,10 @@ class Payment(models.Model):
 
 
 class PaymentDetail(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
     payment = models.ForeignKey(
         Payment, related_name='details', on_delete=models.CASCADE)
     loan = models.ForeignKey(
         Loan, related_name='payment_details', on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=20, decimal_places=2)

@@ -19,6 +19,7 @@ urlpatterns = [
 
     # Payments
     path('api/payment/', payment.PaymentAPIView.as_view(), name='create_payment'),
-    path('api/payment/customer/<str:customer_external_id>/',
-         payment.PaymentAPIView.as_view(), name='payments_by_customer'),
+    path('api/payment/by-customer/<str:customer_external_id>/',
+         payment.PaymentAPIView.as_view()),
+
 ]
