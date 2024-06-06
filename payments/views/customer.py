@@ -16,7 +16,27 @@ from payments.serializers.customer import (CustomerBalanceSerializer,
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 class CustomerAPIView(APIView):
+    """
+    API endpoint for creating, retrieving customers and calculating their balance.
+
+    Methods:
+        post: Create a new customer.
+        get: Retrieve all customers with pagination.
+        get_balance: Calculate and return the balance of a customer.
+    """
+
     def post(self, request, format=None):
+        """
+        Create a new customer.
+
+        Parameters:
+            request: HTTP request.
+            format: Format suffix.
+
+        Returns:
+            Response: HTTP response with created customer data or errors if validation fails.
+        """
+
         serializer = CustomerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -24,6 +44,17 @@ class CustomerAPIView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request, format=None):
+        """
+        Retrieve all customers with pagination.
+
+        Parameters:
+            request: HTTP request.
+            format: Format suffix.
+
+        Returns:
+            Response: Paginated HTTP response with customer data.
+        """
+
         paginator = PageNumberPagination()
         paginator.page_size = 10
         customers = Customer.objects.all()
@@ -32,6 +63,16 @@ class CustomerAPIView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
     def get_balance(self, customer):
+        """
+        Calculate and return the balance of a customer.
+
+        Parameters:
+            customer: Customer instance.
+
+        Returns:
+            dict: A dictionary with total debt and available amount.
+        """
+
         total_debt = customer.loans.filter(status__in=['pending', 'active']).aggregate(
             total_debt=Sum('outstanding'))['total_debt'] or 0
         available_amount = customer.score - total_debt
@@ -44,13 +85,37 @@ class CustomerAPIView(APIView):
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 class CustomerUploadAPIView(APIView):
+    """
+    API endpoint for uploading customer data.
+
+    Methods:
+        pass: Currently not implemented.
+    """
     pass
 
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 class CustomerBalanceAPIView(APIView):
+    """
+    API endpoint for retrieving the balance of all customers.
+
+    Methods:
+        get: Retrieve the balance of all customers.
+    """
+
     def get(self, request, format=None):
+        """
+        Retrieve the balance of all customers.
+
+        Parameters:
+            request: HTTP request.
+            format: Format suffix.
+
+        Returns:
+            Response: HTTP response with customer balance data.
+        """
+
         customers = Customer.objects.all()
         serializer = CustomerBalanceSerializer(customers, many=True)
         return Response(serializer.data)
