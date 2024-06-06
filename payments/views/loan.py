@@ -1,5 +1,6 @@
 # views/loan.py
 from django.db.models import Sum
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import (authentication_classes,
@@ -68,3 +69,20 @@ class LoansByCustomerAPIView(APIView):
         serializer = LoanSerializer(loans, many=True)
 
         return Response(serializer.data)
+
+
+class ActivateLoanAPIView(APIView):
+    def put(self, request, format=None):
+        external_id = request.data.get('external_id')
+        if external_id:
+            try:
+                # Filtra por estado 'pending'
+                loan = Loan.objects.get(external_id=external_id, status=1)
+                loan.status = 2  # Cambia el estado a 'active'
+                loan.taken_at = timezone.now()  # Actualiza la fecha de "taken_at"
+                loan.save()  # Guarda los cambios en la base de datos
+                return Response({'message': 'Loan activated successfully'}, status=status.HTTP_200_OK)
+            except Loan.DoesNotExist:
+                return Response({'error': 'Loan not found or already activated'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({'error': 'External ID not provided'}, status=status.HTTP_400_BAD_REQUEST)
