@@ -7,6 +7,9 @@ urlpatterns = [
     # Customers
     path('api/customers/', customer.CustomerAPIView.as_view(),
          name='customer-list-create'),
+    path('api/customers/balance/', customer.CustomerBalanceAPIView.as_view(),
+         name='customer_balance'),
+
     path('api/customers/bulk-upload/', customer.CustomerUploadAPIView.as_view(),
          name='customer-bulk-upload'),
     # Loans

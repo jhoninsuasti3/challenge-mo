@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from payments.models.customer import Customer
-from payments.serializers.customer import CustomerSerializer
+from payments.serializers.customer import (CustomerBalanceSerializer,
+                                           CustomerSerializer)
 
 
 @authentication_classes([TokenAuthentication])
@@ -44,3 +45,12 @@ class CustomerAPIView(APIView):
 @permission_classes([IsAuthenticated])
 class CustomerUploadAPIView(APIView):
     pass
+
+
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+class CustomerBalanceAPIView(APIView):
+    def get(self, request, format=None):
+        customers = Customer.objects.all()
+        serializer = CustomerBalanceSerializer(customers, many=True)
+        return Response(serializer.data)
